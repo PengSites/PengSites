@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Creator Name] — Recipes & Cookbook</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display for Serif Headings, Plus Jakarta Sans for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FDFBF7',
+                        creamDark: '#F4EFE6',
+                        olive: '#3B4F3C',
+                        oliveLight: '#526D53',
+                        terracotta: '#C85A32',
+                        terracottaHover: '#B24B25',
+                        sand: '#EAE3D2',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FDFBF7;
+            color: #2D3732;
+        }
+        h1, h2, h3, h4, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Faint diagonal watermark overlay */
+        .watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.035;
+            background-image: repeating-linear-gradient(
+                -45deg,
+                #3B4F3C,
+                #3B4F3C 120px,
+                transparent 120px,
+                transparent 240px
+            );
+            background-size: 340px 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .watermark-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            transform: rotate(-30deg);
+            white-space: nowrap;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4EFE6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #526D53;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-cream text-olive relative selection:bg-terracotta selection:text-white">
+
+    <!-- Faint Diagonal Watermark Overlay -->
+    <div class="watermark-overlay">
+        <div class="watermark-text">mahdisites DEMO &nbsp;&nbsp;&nbsp;&nbsp; mahdisites DEMO</div>
+    </div>
+
+    <!-- Fixed Bottom Corner Watermark Badge -->
+    <div class="fixed bottom-4 right-4 z-50 bg-olive text-cream text-xs font-semibold px-3 py-2 rounded-full shadow-lg flex items-center gap-2 border border-oliveLight">
+        <i class="fa-solid fa-code text-terracotta"></i>
+        <span>Demo by mahdisites</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-sand">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo / Handle -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center font-serif font-bold text-lg group-hover:bg-terracotta transition-colors">
+                    [C]
+                </div>
+                <div>
+                    <span class="font-serif font-bold text-lg text-olive block leading-tight">[Creator Name]</span>
+                    <span class="text-xs text-oliveLight font-medium">@handle</span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-olive">
+                <a href="#recipes" class="hover:text-terracotta transition-colors">Recipes</a>
+                <a href="#bundles" class="hover:text-terracotta transition-colors">Bundles</a>
+                <a href="#about" class="hover:text-terracotta transition-colors">About</a>
+                <a href="#testimonials" class="hover:text-terracotta transition-colors">Reviews</a>
+                <a href="#faq" class="hover:text-terracotta transition-colors">FAQ</a>
+            </nav>
+
+            <!-- Actions (Cart & Mobile Menu Trigger) -->
+            <div class="flex items-center gap-3">
+                <button onclick="openCartModal()" class="relative bg-sand/60 hover:bg-sand text-olive p-2.5 rounded-full transition-colors focus:outline-none" aria-label="Shopping Cart">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span id="cart-counter" class="absolute -top-1 -right-1 bg-terracotta text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-sm">0</span>
+                </button>
+                <a href="#recipes" class="hidden sm:inline-flex bg-olive hover:bg-oliveLight text-cream px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm">
+                    Browse Recipes
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-olive p-2 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-cream border-b border-sand px-6 py-4 space-y-3">
+            <a href="#recipes" class="block font-medium text-olive hover:text-terracotta py-1">Recipes</a>
+            <a href="#bundles" class="block font-medium text-olive hover:text-terracotta py-1">Bundles</a>
+            <a href="#about" class="block font-medium text-olive hover:text-terracotta py-1">About</a>
+            <a href="#testimonials" class="block font-medium text-olive hover:text-terracotta py-1">Reviews</a>
+            <a href="#faq" class="block font-medium text-olive hover:text-terracotta py-1">FAQ</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Hero Left Content -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 bg-sand px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide text-olive">
+                        <span class="w-2 h-2 rounded-full bg-terracotta animate-pulse"></span>
+                        New Cookbook Collection Released
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-olive leading-[1.1]">
+                        Simple recipes that <span class="italic text-terracotta">actually work</span>.
+                    </h1>
+                    <p class="text-base sm:text-lg text-oliveLight max-w-xl mx-auto lg:mx-0 font-normal">
+                        Foolproof, restaurant-quality dishes crafted for busy home cooks. No intimidating jargon—just honest, delicious food made simple.
+                    </p>
+
+                    <!-- Follower Count Badges -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                        <div class="flex items-center gap-2 bg-creamDark/80 border border-sand px-4 py-2 rounded-2xl">
+                            <i class="fa-brands fa-instagram text-terracotta text-lg"></i>
+                            <div>
+                                <span class="block font-bold text-sm text-olive">480K+</span>
+                                <span class="block text-[11px] text-oliveLight">Instagram</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 bg-creamDark/80 border border-sand px-4 py-2 rounded-2xl">
+                            <i class="fa-brands fa-tiktok text-olive text-lg"></i>
+                            <div>
+                                <span class="block font-bold text-sm text-olive">920K+</span>
+                                <span class="block text-[11px] text-oliveLight">TikTok</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 bg-creamDark/80 border border-sand px-4 py-2 rounded-2xl">
+                            <i class="fa-solid fa-utensils text-terracotta text-lg"></i>
+                            <div>
+                                <span class="block font-bold text-sm text-olive">50+</span>
+                                <span class="block text-[11px] text-oliveLight">Tested Recipes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                        <a href="#recipes" class="w-full sm:w-auto bg-terracotta hover:bg-terracottaHover text-white px-8 py-4 rounded-full font-semibold text-center transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <span>Browse Recipes</span>
+                            <i class="fa-solid fa-arrow-down text-xs"></i>
+                        </a>
+                        <a href="#bundles" class="w-full sm:w-auto bg-sand hover:bg-sand/80 text-olive px-8 py-4 rounded-full font-semibold text-center transition-all">
+                            View Bundles (Save 30%)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Right Image Card -->
+                <div class="lg:col-span-5 relative flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <!-- Decorative Backdrop Pill -->
+                        <div class="absolute -inset-4 bg-sand rounded-3xl transform rotate-3 -z-10"></div>
+                        <!-- Main Photo Card -->
+                        <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-cream bg-cream">
+                            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Creator cooking" 
+                                 class="w-full h-[420px] object-cover hover:scale-105 transition-transform duration-700"
+                                 onerror="this.src='https://placehold.co/600x600/3B4F3C/FDFBF7?text=Creator+Photo'">
+                        </div>
+                        <!-- Floating Quote Badge -->
+                        <div class="absolute -bottom-6 -left-6 bg-olive text-cream p-4 rounded-2xl shadow-xl max-w-xs border border-oliveLight hidden sm:block">
+                            <p class="font-serif italic text-sm text-cream/90">"Cooking shouldn't be stressful. Let's make magic in the kitchen."</p>
+                            <span class="block text-xs font-semibold text-terracotta mt-1">— [Creator Name]</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Recipes Section -->
+    <section id="recipes" class="py-20 bg-creamDark/50 border-t border-sand">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-terracotta text-sm font-semibold tracking-wider uppercase">Handcrafted Kitchen Guides</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-olive mt-2 mb-4">Featured Recipes</h2>
+                <p class="text-oliveLight text-base">Step-by-step masterclasses with exact measurements, ingredient breakdowns, and high-definition video tips.</p>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Recipe cards will be dynamically populated via JS for easy interactivity -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Recipe Bundles Section -->
+    <section id="bundles" class="py-20 bg-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-terracotta text-sm font-semibold tracking-wider uppercase">Best Value Collections</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-olive mt-2 mb-4">Curated Recipe Bundles</h2>
+                <p class="text-oliveLight text-base">Get thematic recipe packs at discounted bundle pricing. Instant digital download upon purchase.</p>
+            </div>
+
+            <!-- Bundles Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Bundle 1 -->
+                <div class="bg-creamDark border border-sand rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute top-6 right-6 bg-terracotta text-white text-xs font-bold px-3 py-1.5 rounded-full">Save 35%</div>
+                    <div>
+                        <div class="rounded-2xl overflow-hidden mb-6 h-48">
+                            <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=600&q=80" alt="Ramadan Favourites" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-xs font-semibold text-terracotta uppercase tracking-wider">6 Recipes Included</span>
+                        <h3 class="font-serif text-2xl font-bold text-olive mt-1 mb-3">Ramadan Favourites Pack</h3>
+                        <p class="text-oliveLight text-sm mb-6">Hearty soups, slow-simmered stews, melt-in-your-mouth pastries, and crowd-pleasing iftar feasts.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-3 mb-6">
+                            <span class="text-3xl font-bold font-serif text-olive">AED 65</span>
+                            <span class="text-base text-oliveLight/70 line-through">AED 100</span>
+                        </div>
+                        <button onclick="addToCart('Bundle: Ramadan Favourites Pack', 65)" class="w-full bg-olive hover:bg-oliveLight text-cream py-3.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Buy Bundle — AED 65</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bundle 2 -->
+                <div class="bg-creamDark border border-sand rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute top-6 right-6 bg-terracotta text-white text-xs font-bold px-3 py-1.5 rounded-full">Save 40%</div>
+                    <div>
+                        <div class="rounded-2xl overflow-hidden mb-6 h-48">
+                            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80" alt="15-Minute Dinners" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-xs font-semibold text-terracotta uppercase tracking-wider">8 Recipes Included</span>
+                        <h3 class="font-serif text-2xl font-bold text-olive mt-1 mb-3">15-Minute Dinners Masterclass</h3>
+                        <p class="text-oliveLight text-sm mb-6">Lightning-fast weeknight dinners using pantry staples without sacrificing gourmet flavor.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-3 mb-6">
+                            <span class="text-3xl font-bold font-serif text-olive">AED 75</span>
+                            <span class="text-base text-oliveLight/70 line-through">AED 125</span>
+                        </div>
+                        <button onclick="addToCart('Bundle: 15-Minute Dinners Masterclass', 75)" class="w-full bg-olive hover:bg-oliveLight text-cream py-3.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Buy Bundle — AED 75</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bundle 3 -->
+                <div class="bg-creamDark border border-sand rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute top-6 right-6 bg-terracotta text-white text-xs font-bold px-3 py-1.5 rounded-full">Save 30%</div>
+                    <div>
+                        <div class="rounded-2xl overflow-hidden mb-6 h-48">
+                            <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80" alt="Desserts Pack" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-xs font-semibold text-terracotta uppercase tracking-wider">5 Recipes Included</span>
+                        <h3 class="font-serif text-2xl font-bold text-olive mt-1 mb-3">Artisan Desserts Pack</h3>
+                        <p class="text-oliveLight text-sm mb-6">Decadent cakes, burnt cheesecakes, and silky puddings that look like they came from a high-end patisserie.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-3 mb-6">
+                            <span class="text-3xl font-bold font-serif text-olive">AED 55</span>
+                            <span class="text-base text-oliveLight/70 line-through">AED 80</span>
+                        </div>
+                        <button onclick="addToCart('Bundle: Artisan Desserts Pack', 55)" class="w-full bg-olive hover:bg-oliveLight text-cream py-3.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Buy Bundle — AED 55</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-creamDark/60 border-t border-sand">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- About Photo -->
+                <div class="lg:col-span-5 relative flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <div class="absolute -inset-4 bg-sand rounded-3xl transform -rotate-3 -z-10"></div>
+                        <div class="rounded-3xl overflow-hidden shadow-xl border-4 border-cream bg-cream">
+                            <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Creator in kitchen" 
+                                 class="w-full h-[450px] object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Content -->
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="text-terracotta text-sm font-semibold tracking-wider uppercase">Behind the Apron</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-olive">Hi, I'm [Creator Name]</h2>
+                    <p class="text-oliveLight text-base leading-relaxed">
+                        For years, I watched home cooks struggle with complicated recipes that required 40 obscure ingredients and three hours of cleanup. I started @handle to change that narrative.
+                    </p>
+                    <p class="text-oliveLight text-base leading-relaxed">
+                        Every recipe in my digital cookbook is tested 5+ times in a regular home kitchen with standard appliances. If it's not delicious, foolproof, and deeply satisfying, it doesn't make the cut.
+                    </p>
+
+                    <!-- Fun Facts Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                        <div class="bg-cream border border-sand p-4 rounded-2xl">
+                            <span class="block font-serif font-bold text-xl text-olive mb-1">Coffee First</span>
+                            <span class="text-xs text-oliveLight">Espresso before any chopping begins.</span>
+                        </div>
+                        <div class="bg-cream border border-sand p-4 rounded-2xl">
+                            <span class="block font-serif font-bold text-xl text-olive mb-1">Cast Iron</span>
+                            <span class="text-xs text-oliveLight">My most treasured kitchen tool.</span>
+                        </div>
+                        <div class="bg-cream border border-sand p-4 rounded-2xl">
+                            <span class="block font-serif font-bold text-xl text-olive mb-1">Global Spices</span>
+                            <span class="text-xs text-oliveLight">Obsessed with smoky cumin & sumac.</span>
+                        </div>
+                    </div>
+
+                    <!-- Social Links -->
+                    <div class="pt-4 flex items-center gap-4">
+                        <span class="text-sm font-semibold text-olive">Connect with me:</span>
+                        <a href="#" class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center hover:bg-terracotta transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center hover:bg-terracotta transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center hover:bg-terracotta transition-colors"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center hover:bg-terracotta transition-colors"><i class="fa-brands fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-terracotta text-sm font-semibold tracking-wider uppercase">Loved by Home Cooks</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-olive mt-2 mb-4">What Buyers Say</h2>
+                <p class="text-oliveLight text-base">Real reviews from people who upgraded their weeknight dinners.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Testimonial 1 -->
+                <div class="bg-creamDark border border-sand p-8 rounded-3xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-1 text-terracotta mb-4">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="font-serif italic text-olive text-lg mb-6">"The crispy honey garlic chicken recipe alone is worth 10x the price. My family thought I ordered takeout from a luxury bistro!"</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                        <div class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center font-bold text-sm">S.K</div>
+                        <div>
+                            <span class="block font-bold text-sm text-olive">Sarah K.</span>
+                            <span class="block text-xs text-oliveLight">Verified Buyer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-creamDark border border-sand p-8 rounded-3xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-1 text-terracotta mb-4">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="font-serif italic text-olive text-lg mb-6">"I used to dread cooking after a long workday. [Creator Name]'s 15-minute meal formulas saved my sanity and my wallet."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                        <div class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center font-bold text-sm">T.M</div>
+                        <div>
+                            <span class="block font-bold text-sm text-olive">Tariq M.</span>
+                            <span class="block text-xs text-oliveLight">Verified Buyer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-creamDark border border-sand p-8 rounded-3xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-1 text-terracotta mb-4">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="font-serif italic text-olive text-lg mb-6">"Clear instructions, exact grams, and gorgeous photos. The PDF downloads look stunning on my iPad in the kitchen."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                        <div class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center font-bold text-sm">L.R</div>
+                        <div>
+                            <span class="block font-bold text-sm text-olive">Layla R.</span>
+                            <span class="block text-xs text-oliveLight">Verified Buyer</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-20 bg-olive text-cream relative overflow-hidden">
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-oliveLight/30 pointer-events-none blur-3xl"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <span class="text-terracotta text-sm font-semibold tracking-wider uppercase bg-cream/10 px-4 py-1.5 rounded-full inline-block mb-4">Free Weekly Recipe</span>
+            <h2 class="font-serif text-3xl sm:text-5xl font-bold mb-4">Get my secret truffle butter pasta recipe for free</h2>
+            <p class="text-cream/80 text-base max-w-xl mx-auto mb-8">Join 45,000+ home cooks receiving my Sunday newsletter with exclusive tips and free weekend recipes.</p>
+            
+            <form onsubmit="handleNewsletter(event)" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input type="email" required placeholder="Enter your email address" class="flex-grow px-5 py-4 rounded-full bg-cream/10 border border-cream/20 text-cream placeholder-cream/50 focus:outline-none focus:border-terracotta">
+                <button type="submit" class="bg-terracotta hover:bg-terracottaHover text-white px-8 py-4 rounded-full font-semibold transition-all shadow-md">
+                    Get Free Recipe
+                </button>
+            </form>
+            <span id="newsletter-msg" class="block text-xs text-terracotta mt-3 hidden">🎉 Success! Check your inbox for your free recipe.</span>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-cream">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-terracotta text-sm font-semibold tracking-wider uppercase">Got Questions?</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-olive mt-2 mb-4">Frequently Asked Questions</h2>
+                <p class="text-oliveLight text-base">Everything you need to know about purchasing and accessing recipes.</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="bg-creamDark border border-sand rounded-2xl p-6 transition-all">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between text-left font-serif font-bold text-lg text-olive focus:outline-none">
+                        <span>How do I access my recipes after purchasing?</span>
+                        <i class="fa-solid fa-chevron-down text-terracotta transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden pt-4 text-oliveLight text-sm leading-relaxed">
+                        Immediately after checkout, you'll receive a secure download link via email and on the confirmation screen. You can download the high-resolution PDF instantly to your phone, tablet, or computer, and it's yours to keep forever.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="bg-creamDark border border-sand rounded-2xl p-6 transition-all">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between text-left font-serif font-bold text-lg text-olive focus:outline-none">
+                        <span>What is your refund policy?</span>
+                        <i class="fa-solid fa-chevron-down text-terracotta transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden pt-4 text-oliveLight text-sm leading-relaxed">
+                        Due to the digital nature of instant PDF downloads, all sales are final. However, if you experience any technical download issues or corrupted files, our support team will replace them immediately.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="bg-creamDark border border-sand rounded-2xl p-6 transition-all">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between text-left font-serif font-bold text-lg text-olive focus:outline-none">
+                        <span>Are dietary requirements catered for?</span>
+                        <i class="fa-solid fa-chevron-down text-terracotta transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden pt-4 text-oliveLight text-sm leading-relaxed">
+                        Yes! Every recipe card includes clear dietary tags (Gluten-Free, Dairy-Free, Vegetarian, Nut-Free) so you can easily filter and choose dishes that suit your lifestyle.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="bg-creamDark border border-sand rounded-2xl p-6 transition-all">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between text-left font-serif font-bold text-lg text-olive focus:outline-none">
+                        <span>What currency are the prices in?</span>
+                        <i class="fa-solid fa-chevron-down text-terracotta transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden pt-4 text-oliveLight text-sm leading-relaxed">
+                        All prices are listed in AED (UAE Dirham). International cards are fully accepted at checkout and automatically converted to your local currency by your bank or payment provider.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-creamDark border-t border-sand py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-olive text-cream flex items-center justify-center font-serif font-bold text-lg">
+                            [C]
+                        </div>
+                        <span class="font-serif font-bold text-xl text-olive">[Creator Name]</span>
+                    </div>
+                    <p class="text-oliveLight text-sm max-w-sm">
+                        Simple, foolproof recipes that bring joy back to home cooking. Crafted with passion for food lovers everywhere.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-olive mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-oliveLight">
+                        <li><a href="#recipes" class="hover:text-terracotta transition-colors">Recipes</a></li>
+                        <li><a href="#bundles" class="hover:text-terracotta transition-colors">Bundles</a></li>
+                        <li><a href="#about" class="hover:text-terracotta transition-colors">About</a></li>
+                        <li><a href="#testimonials" class="hover:text-terracotta transition-colors">Reviews</a></li>
+                        <li><a href="#faq" class="hover:text-terracotta transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-olive mb-4">Legal & Support</h4>
+                    <ul class="space-y-2 text-sm text-oliveLight">
+                        <li><a href="#" onclick="openMsg('Terms of Service: All digital sales are final. Contact support@creatorname.com for assistance.')" class="hover:text-terracotta transition-colors">Terms of Service</a></li>
+                        <li><a href="#" onclick="openMsg('Privacy Policy: We respect your privacy and never share your email address.')" class="hover:text-terracotta transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" onclick="openMsg('Contact: support@creatorname.com')" class="hover:text-terracotta transition-colors">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-sand flex flex-col sm:flex-row items-center justify-between text-xs text-oliveLight gap-4">
+                <p>&copy; 2026 [Creator Name]. All rights reserved. Demo by mahdisites.</p>
+                <div class="flex items-center gap-4">
+                    <span class="bg-sand/60 px-3 py-1 rounded-full text-olive font-medium">Payments powered by Stripe / Lemon Squeezy</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Checkout / Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 z-50 bg-olive/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cream rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-sand relative animate-in fade-in zoom-in-95 duration-200">
+            <button onclick="closeCartModal()" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-creamDark border border-sand flex items-center justify-center text-olive hover:bg-terracotta hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-sand rounded-full flex items-center justify-center mx-auto mb-3 text-olive">
+                    <i class="fa-solid fa-bag-shopping text-xl"></i>
+                </div>
+                <h3 class="font-serif font-bold text-2xl text-olive">Your Cart</h3>
+                <p class="text-xs text-oliveLight mt-1">Payments powered by Stripe & Lemon Squeezy</p>
+            </div>
+
+            <div id="cart-items-container" class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-1">
+                <!-- Cart items list -->
+            </div>
+
+            <div class="border-t border-sand pt-4 mb-6 space-y-2">
+                <div class="flex justify-between text-sm text-oliveLight">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">AED 0</span>
+                </div>
+                <div class="flex justify-between text-base font-bold text-olive">
+                    <span>Total</span>
+                    <span id="cart-total">AED 0</span>
+                </div>
+            </div>
+
+            <button onclick="simulateCheckout()" class="w-full bg-terracotta hover:bg-terracottaHover text-white py-3.5 rounded-2xl font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-lock text-xs"></i>
+                <span>Proceed to Secure Checkout</span>
+            </button>
+            <p class="text-[11px] text-center text-oliveLight/70 mt-3">Instant digital download delivered directly to your email.</p>
+        </div>
+    </div>
+
+    <!-- General Message Box Modal -->
+    <div id="msg-modal" class="fixed inset-0 z-50 bg-olive/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cream rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-sand relative">
+            <div class="w-12 h-12 bg-terracotta/10 text-terracotta rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h4 id="msg-title" class="font-serif font-bold text-xl text-olive mb-2">Notice</h4>
+            <p id="msg-text" class="text-sm text-oliveLight mb-6">Message content here.</p>
+            <button onclick="closeMsgModal()" class="w-full bg-olive hover:bg-oliveLight text-cream py-3 rounded-xl font-semibold text-sm transition-all">
+                Got it
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Recipe Data Store (6 recipes)
+        const recipes = [
+            {
+                id: 1,
+                title: "Crispy Honey Garlic Glazed Salmon",
+                desc: "Pan-seared salmon fillets bathed in a sticky garlic, ginger, and wildflower honey reduction.",
+                time: "20 mins",
+                difficulty: "Easy",
+                price: 25,
+                isFree: false,
+                image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 2,
+                title: "Silky Truffle Butter Fettuccine",
+                desc: "Handmade pasta tossed in a luxurious black truffle butter and aged Parmigiano-Reggiano emulsion.",
+                time: "15 mins",
+                difficulty: "Easy",
+                price: 0,
+                isFree: true,
+                image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 3,
+                title: "Smoky Harissa Roast Chicken & Potatoes",
+                desc: "Juicy bone-in chicken thighs rubbed in spiced North African harissa, roasted alongside crispy baby potatoes.",
+                time: "45 mins",
+                difficulty: "Medium",
+                price: 30,
+                isFree: false,
+                image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 4,
+                title: "Decadent Pistachio Basbousa Cake",
+                desc: "Traditional semolina sponge soaked in orange blossom syrup and topped with crushed toasted pistachios.",
+                time: "35 mins",
+                difficulty: "Easy",
+                price: 20,
+                isFree: false,
+                image: "https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 5,
+                title: "Creamy Tuscan Sun-Dried Tomato Soup",
+                desc: "Velvety roasted tomato soup infused with garlic, cream, sweet basil, and tangy sun-dried tomatoes.",
+                time: "30 mins",
+                difficulty: "Easy",
+                price: 15,
+                isFree: true,
+                image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 6,
+                title: "Crispy Smashed Za'atar Potatoes",
+                desc: "Boiled baby potatoes smashed flat, drizzled with olive oil, dusted with aromatic za'atar, and baked until crispy.",
+                time: "40 mins",
+                difficulty: "Easy",
+                price: 22,
+                isFree: false,
+                image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        // Shopping Cart State
+        let cart = [];
+
+        // Render Recipe Cards
+        function renderRecipes() {
+            const grid = document.getElementById('recipe-grid');
+            grid.innerHTML = recipes.map(r => `
+                <div class="bg-creamDark border border-sand rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="relative h-56 overflow-hidden cursor-pointer" onclick="handleRecipeClick('${r.title}', ${r.price})">
+                            <img src="${r.image}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/3B4F3C/FDFBF7?text=Recipe+Photo'">
+                            ${r.isFree ? '<span class="absolute top-4 left-4 bg-olive text-cream text-xs font-bold px-3 py-1.5 rounded-full shadow">Free Recipe</span>' : `<span class="absolute top-4 left-4 bg-terracotta text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">AED ${r.price}</span>`}
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-4 text-xs font-semibold text-oliveLight mb-2">
+                                <span><i class="fa-regular fa-clock text-terracotta mr-1"></i> ${r.time}</span>
+                                <span>•</span>
+                                <span><i class="fa-solid fa-signal text-terracotta mr-1"></i> ${r.difficulty}</span>
+                            </div>
+                            <h3 onclick="handleRecipeClick('${r.title}', ${r.price})" class="font-serif font-bold text-xl text-olive mb-2 hover:text-terracotta cursor-pointer transition-colors">${r.title}</h3>
+                            <p class="text-oliveLight text-sm line-clamp-2">${r.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        ${r.isFree ? 
+                            `<button onclick="handleRecipeClick('${r.title}', ${r.price})" class="w-full bg-olive hover:bg-oliveLight text-cream py-3.5 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download text-xs"></i>
+                                <span>Get Free Recipe</span>
+                            </button>` :
+                            `<button onclick="addToCart('${r.title}', ${r.price})" class="w-full bg-terracotta hover:bg-terracottaHover text-white py-3.5 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-bag-shopping"></i>
+                                <span>Buy Recipe — AED ${r.price}</span>
+                            </button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleRecipeClick(title, price) {
+            if (price === 0) {
+                openMsg('🎉 Free Recipe Download: Link sent directly to your email!');
+            } else {
+                addToCart(title, price);
+            }
+        }
+
+        // Cart Management
+        function addToCart(title, price) {
+            // Check if item already exists
+            const existing = cart.find(item => item.title === title);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ title, price, qty: 1 });
+            }
+            updateCartUI();
+            openCartModal();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const counter = document.getElementById('cart-counter');
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            counter.innerText = totalItems;
+
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-oliveLight py-8 text-sm">Your cart is currently empty.</p>`;
+                document.getElementById('cart-subtotal').innerText = 'AED 0';
+                document.getElementById('cart-total').innerText = 'AED 0';
+                return;
+            }
+
+            let subtotal = 0;
+            container.innerHTML = cart.map((item, idx) => {
+                subtotal += item.price * item.qty;
+                return `
+                    <div class="flex items-center justify-between bg-creamDark p-3 rounded-2xl border border-sand text-sm">
+                        <div class="pr-2">
+                            <span class="font-bold text-olive block leading-tight">${item.title}</span>
+                            <span class="text-xs text-oliveLight">AED ${item.price} × ${item.qty}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-olive">AED ${item.price * item.qty}</span>
+                            <button onclick="removeFromCart(${idx})" class="text-terracotta hover:text-terracottaHover p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-subtotal').innerText = `AED ${subtotal}`;
+            document.getElementById('cart-total').innerText = `AED ${subtotal}`;
+        }
+
+        function openCartModal() {
+            document.getElementById('cart-modal').classList.remove('hidden');
+            document.getElementById('cart-modal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            updateCartUI();
+        }
+
+        function closeCartModal() {
+            document.getElementById('cart-modal').classList.remove('flex');
+            document.getElementById('cart-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function simulateCheckout() {
+            if (cart.length === 0) {
+                openMsg('Your cart is empty. Please add a recipe or bundle first.');
+                return;
+            }
+            closeCartModal();
+            cart = [];
+            updateCartUI();
+            openMsg('🎉 Thank you for your purchase! (Placeholder Checkout). Your secure download links have been sent to your email.');
+        }
+
+        // Newsletter handler
+        function handleNewsletter(e) {
+            e.preventDefault();
+            document.getElementById('newsletter-msg').classList.remove('hidden');
+            e.target.reset();
+        }
+
+        // FAQ Toggle
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            content.classList.toggle('hidden');
+            btn.classList.toggle('text-terracotta');
+        }
+
+        // General Message Box
+        function openMsg(text) {
+            document.getElementById('msg-text').innerText = text;
+            document.getElementById('msg-modal').classList.remove('hidden');
+            document.getElementById('msg-modal').classList.add('flex');
+        }
+
+        function closeMsgModal() {
+            document.getElementById('msg-modal').classList.remove('flex');
+            document.getElementById('msg-modal').classList.add('hidden');
+        }
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Initialize App on load
+        window.onload = function() {
+            renderRecipes();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>window.PENG_PATH_DEPTH = 1;</script>
+</head>
+<body>
+  <div class="peng-shell">
+    <div id="peng-header"></div>
+    <main class="peng-main">
+      <div class="peng-container peng-section peng-fade-in">
+        <h1 class="peng-section-title">All recipes</h1>
+        <p class="peng-section-sub">Search and filter by category.</p>
+        <div style="display:grid;gap:0.85rem;margin-bottom:1rem">
+          <input class="peng-input" id="recipe-search" type="search" placeholder="Search recipes, badges…" aria-label="Search recipes">
+          <div class="peng-chips" id="category-chips"></div>
+          <div id="recipes-count" style="font-size:0.85rem;color:var(--peng-muted)"></div>
+        </div>
+        <div class="peng-grid-recipes peng-stagger" id="recipes-grid"></div>
+      </div>
+    </main>
+    <div id="peng-footer"></div>
+  </div>
+  <script src="../js/config.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/format.js"></script>
+  <script src="../js/store.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/storefront-recipes.js"></script>
+</body>
+</html>

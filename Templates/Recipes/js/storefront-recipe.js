@@ -2,6 +2,7 @@
   const Store = window.PENG_STORE;
   const F = window.PENG_FORMAT;
   const UI = window.PENG_UI;
+  const Reader = window.PENG_RECIPE_READER;
 
   const ui = UI.initStorefront({ active: 'recipes', title: 'Recipe' });
   const params = new URLSearchParams(location.search);
@@ -15,56 +16,7 @@
   }
 
   document.title = `${recipe.title} — ${Store.getBrand().name}`;
-  let servings = recipe.servingsBase || 2;
   const unlocked = Store.isUnlocked(recipe.id);
-
-  function ingredientLine(ing) {
-    const amount = ing.scalable
-      ? F.scaleAmount(ing.amount, recipe.servingsBase || 2, servings)
-      : ing.amount;
-    const unit = ing.unit ? ` ${ing.unit}` : '';
-    return `<li><strong>${F.escapeHtml(String(amount))}${F.escapeHtml(unit)}</strong> ${F.escapeHtml(ing.name)}</li>`;
-  }
-
-  function lockedBody() {
-    return `
-      <div class="peng-lock-panel">
-        <div class="peng-lock-blur" aria-hidden="true">
-          <h3>Ingredients</h3>
-          <ul>${(recipe.ingredients || []).slice(0, 5).map(ingredientLine).join('')}</ul>
-          <h3>Steps</h3>
-          <ol>${(recipe.steps || []).slice(0, 3).map((s) => `<li>${F.escapeHtml(s)}</li>`).join('')}</ol>
-        </div>
-        <div class="peng-lock-gate">
-          <div class="peng-lock-card">
-            <div style="margin-bottom:0.5rem">${UI.icons.lock}</div>
-            <h3 style="margin:0 0 0.5rem;color:var(--peng-primary)">Full recipe locked</h3>
-            <p style="margin:0 0 1rem;font-size:0.9rem;color:var(--peng-muted)">Ingredients, steps, and print access unlock after purchase. Preview shows the photo, description, badges, and nutrition only.</p>
-            <button type="button" class="peng-btn peng-btn-primary" style="width:100%" id="buy-recipe">Buy — ${F.escapeHtml(F.money(recipe.price))}</button>
-            <a class="peng-btn peng-btn-ghost" style="width:100%;margin-top:0.5rem" href="${F.pageUrl('cart')}">View cart</a>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function unlockedBody() {
-    return `
-      <div class="peng-print-mark" id="recipe-content">
-        <div class="no-print" style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem">
-          <label class="peng-label" style="margin:0">Servings</label>
-          <button type="button" class="peng-icon-btn" id="serv-minus" aria-label="Fewer servings">−</button>
-          <strong id="serv-count">${servings}</strong>
-          <button type="button" class="peng-icon-btn" id="serv-plus" aria-label="More servings">+</button>
-          <button type="button" class="peng-btn peng-btn-ghost" id="print-btn">${UI.icons.print} Print</button>
-        </div>
-        <h2 style="margin:0 0 0.75rem;color:var(--peng-primary)">Ingredients</h2>
-        <ul id="ing-list" style="margin:0 0 1.5rem;padding-left:1.1rem;line-height:1.7">${(recipe.ingredients || []).map(ingredientLine).join('')}</ul>
-        <h2 style="margin:0 0 0.75rem;color:var(--peng-primary)">Steps</h2>
-        <ol style="margin:0;padding-left:1.1rem;line-height:1.7">${(recipe.steps || []).map((s) => `<li style="margin-bottom:0.65rem">${F.escapeHtml(s)}</li>`).join('')}</ol>
-      </div>
-    `;
-  }
 
   function related() {
     const cats = new Set(recipe.categoryIds || []);
@@ -73,7 +25,7 @@
       .slice(0, 3);
   }
 
-  function render() {
+  function lockedTeaser() {
     const n = recipe.nutrition || {};
     root.innerHTML = `
       <div class="peng-container peng-section peng-fade-in">
@@ -98,15 +50,27 @@
               <div class="peng-metric"><div class="label">Carbs</div><div class="value" style="font-size:1.1rem">${F.escapeHtml(n.carbs || '—')}</div></div>
               <div class="peng-metric"><div class="label">Fat</div><div class="value" style="font-size:1.1rem">${F.escapeHtml(n.fat || '—')}</div></div>
             </div>
-            ${
-              unlocked
-                ? `<p style="margin:0 0 1rem;font-weight:600;color:var(--peng-primary-soft)">${!recipe.price ? 'Free recipe — full access' : 'You own this recipe'}</p>`
-                : `<button type="button" class="peng-btn peng-btn-primary" id="buy-recipe-top">Add to cart — ${F.escapeHtml(F.money(recipe.price))}</button>`
-            }
+            <button type="button" class="peng-btn peng-btn-primary" id="buy-recipe-top">Add to cart — ${F.escapeHtml(F.money(recipe.price))}</button>
           </div>
         </div>
 
-        <div style="margin-top:2rem">${unlocked ? unlockedBody() : lockedBody()}</div>
+        <div style="margin-top:2rem" class="peng-lock-panel">
+          <div class="peng-lock-blur" aria-hidden="true">
+            <h3>Ingredients</h3>
+            <ul><li>● ● ● ● ●</li><li>● ● ● ●</li><li>● ● ● ● ● ●</li><li>● ● ●</li><li>● ● ● ● ●</li></ul>
+            <h3>Steps</h3>
+            <ol><li>● ● ● ● ● ● ● ●</li><li>● ● ● ● ● ●</li><li>● ● ● ● ● ● ●</li></ol>
+          </div>
+          <div class="peng-lock-gate">
+            <div class="peng-lock-card">
+              <div style="margin-bottom:0.5rem">${UI.icons.lock}</div>
+              <h3 style="margin:0 0 0.5rem;color:var(--peng-primary)">Full recipe locked</h3>
+              <p style="margin:0 0 1rem;font-size:0.9rem;color:var(--peng-muted)">Detailed ingredients, method, and print access unlock after purchase. Preview shows the photo, description, badges, and nutrition only.</p>
+              <button type="button" class="peng-btn peng-btn-primary" style="width:100%" id="buy-recipe">Buy — ${F.escapeHtml(F.money(recipe.price))}</button>
+              <a class="peng-btn peng-btn-ghost" style="width:100%;margin-top:0.5rem" href="${F.pageUrl('cart')}">View cart</a>
+            </div>
+          </div>
+        </div>
 
         ${(recipe.reviews || []).length
           ? `<section style="margin-top:2.5rem">
@@ -114,11 +78,11 @@
               <div style="display:grid;gap:0.85rem;margin-top:1rem">
                 ${recipe.reviews
                   .map(
-                    (r) => `
+                    (rev) => `
                   <div class="peng-card" style="padding:1rem 1.15rem">
-                    <div class="peng-stars">${F.stars(r.stars)}</div>
-                    <p style="margin:0.5rem 0">${F.escapeHtml(r.text)}</p>
-                    <div style="font-size:0.8rem;color:var(--peng-muted)">${F.escapeHtml(r.name)} · ${F.escapeHtml(F.formatDate(r.date))}</div>
+                    <div class="peng-stars">${F.stars(rev.stars)}</div>
+                    <p style="margin:0.5rem 0">${F.escapeHtml(rev.text)}</p>
+                    <div style="font-size:0.8rem;color:var(--peng-muted)">${F.escapeHtml(rev.name)} · ${F.escapeHtml(F.formatDate(rev.date))}</div>
                   </div>`
                   )
                   .join('')}
@@ -159,17 +123,53 @@
     };
     document.getElementById('buy-recipe')?.addEventListener('click', buy);
     document.getElementById('buy-recipe-top')?.addEventListener('click', buy);
-
-    document.getElementById('print-btn')?.addEventListener('click', () => window.print());
-    document.getElementById('serv-minus')?.addEventListener('click', () => {
-      servings = Math.max(1, servings - 1);
-      render();
-    });
-    document.getElementById('serv-plus')?.addEventListener('click', () => {
-      servings = servings + 1;
-      render();
-    });
   }
 
-  render();
+  function unlockedView() {
+    const wrap = document.createElement('div');
+    root.innerHTML = '';
+    root.appendChild(wrap);
+    Reader.render(wrap, recipe, {
+      mode: 'storefront',
+      backHref: F.pageUrl('recipes'),
+      backLabel: 'All recipes'
+    });
+
+    const extra = document.createElement('div');
+    extra.className = 'peng-container';
+    extra.style.paddingBottom = '3rem';
+    extra.innerHTML = `
+      ${(recipe.reviews || []).length
+        ? `<section style="margin-top:0.5rem">
+            <h2 class="peng-section-title" style="font-size:1.6rem">Reviews</h2>
+            <div style="display:grid;gap:0.85rem;margin-top:1rem">
+              ${recipe.reviews
+                .map(
+                  (rev) => `
+                <div class="peng-card" style="padding:1rem 1.15rem">
+                  <div class="peng-stars">${F.stars(rev.stars)}</div>
+                  <p style="margin:0.5rem 0">${F.escapeHtml(rev.text)}</p>
+                  <div style="font-size:0.8rem;color:var(--peng-muted)">${F.escapeHtml(rev.name)} · ${F.escapeHtml(F.formatDate(rev.date))}</div>
+                </div>`
+                )
+                .join('')}
+            </div>
+          </section>`
+        : ''}
+      <section style="margin-top:2.5rem">
+        <h2 class="peng-section-title" style="font-size:1.6rem">You might also like</h2>
+        <div class="peng-grid-recipes peng-stagger" id="related-grid" style="margin-top:1rem"></div>
+      </section>
+    `;
+    root.appendChild(extra);
+    const relatedEl = document.getElementById('related-grid');
+    const rel = related();
+    relatedEl.innerHTML = rel.length
+      ? rel.map(UI.recipeCard).join('')
+      : '<div class="peng-empty">More recipes coming soon.</div>';
+    UI.bindAddButtons(relatedEl);
+  }
+
+  if (unlocked) unlockedView();
+  else lockedTeaser();
 })();

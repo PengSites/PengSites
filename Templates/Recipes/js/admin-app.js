@@ -235,103 +235,59 @@
   }
 
   function renderEditor() {
-    const r =
-      (editingId && Store.getRecipe(editingId)) ||
-      {
-        id: '',
-        title: '',
-        shortDescription: '',
-        categoryIds: [],
-        price: 9,
-        badges: [],
-        nutrition: { calories: '', protein: '', carbs: '', fat: '' },
-        image: 'images/recipes/garlic-herb-pasta.jpg',
-        servingsBase: 4,
-        time: '30 min',
-        difficulty: 'Easy',
-        featured: false,
-        ingredients: [{ amount: 1, unit: '', name: '', scalable: true }],
-        steps: [''],
-        reviews: []
-      };
+    const existing = editingId && Store.getRecipe(editingId);
+    const normalized = existing ? F.normalizeRecipe(existing) : null;
+    const state = {
+      id: (normalized && normalized.id) || '',
+      title: (normalized && normalized.title) || '',
+      shortDescription: (normalized && normalized.shortDescription) || '',
+      intro: (normalized && normalized.intro) || '',
+      categoryIds: (normalized && normalized.categoryIds) || [],
+      price: normalized ? normalized.price : 9,
+      badges: (normalized && normalized.badges) || [],
+      nutrition: (normalized && normalized.nutrition) || { calories: '', protein: '', carbs: '', fat: '' },
+      image: (normalized && normalized.image) || 'images/recipes/garlic-herb-pasta.jpg',
+      servingsBase: (normalized && normalized.servingsBase) || 4,
+      prepTime: (normalized && normalized.prepTime) || '',
+      cookTime: (normalized && normalized.cookTime) || '',
+      time: (normalized && normalized.time) || '30 min',
+      difficulty: (normalized && normalized.difficulty) || 'Easy',
+      featured: !!(normalized && normalized.featured),
+      equipment: (normalized && normalized.equipment) || [],
+      ingredients:
+        normalized && normalized.ingredients.length
+          ? normalized.ingredients.map((i) => Object.assign({}, i))
+          : [{ amount: 1, unit: '', name: '', scalable: true }],
+      steps:
+        normalized && normalized.steps.length
+          ? normalized.steps.map((s) => Object.assign({}, s))
+          : [{ text: '', tip: '' }],
+      reviews: (normalized && normalized.reviews) || []
+    };
     const cats = Store.getCategories();
-    content.innerHTML = `
-      <div class="peng-fade-in">
-        <h1 class="peng-section-title" style="font-size:1.8rem">${editingId ? 'Edit recipe' : 'New recipe'}</h1>
-        <form id="recipe-form" class="peng-card" style="padding:1.25rem;max-width:46rem">
-          <div class="peng-field"><label class="peng-label">Title</label><input class="peng-input" name="title" required value="${F.escapeHtml(r.title)}"></div>
-          <div class="peng-field"><label class="peng-label">Short description</label><textarea class="peng-textarea" name="shortDescription" rows="2" required>${F.escapeHtml(r.shortDescription)}</textarea></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
-            <div class="peng-field"><label class="peng-label">Price (0 = free)</label><input class="peng-input" name="price" type="number" min="0" step="0.01" value="${r.price || 0}"></div>
-            <div class="peng-field"><label class="peng-label">Image path</label><input class="peng-input" name="image" value="${F.escapeHtml(r.image || '')}"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem">
-            <div class="peng-field"><label class="peng-label">Time</label><input class="peng-input" name="time" value="${F.escapeHtml(r.time || '')}"></div>
-            <div class="peng-field"><label class="peng-label">Difficulty</label><input class="peng-input" name="difficulty" value="${F.escapeHtml(r.difficulty || '')}"></div>
-            <div class="peng-field"><label class="peng-label">Servings base</label><input class="peng-input" name="servingsBase" type="number" min="1" value="${r.servingsBase || 2}"></div>
-          </div>
-          <div class="peng-field">
-            <label class="peng-label">Categories</label>
-            <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
-              ${cats
-                .map(
-                  (c) => `
-                <label style="display:inline-flex;gap:0.3rem;align-items:center;font-size:0.85rem">
-                  <input type="checkbox" name="categoryIds" value="${F.escapeHtml(c.id)}" ${(r.categoryIds || []).includes(c.id) ? 'checked' : ''}> ${F.escapeHtml(c.label)}
-                </label>`
-                )
-                .join('')}
-            </div>
-          </div>
-          <div class="peng-field"><label class="peng-label">Badges (comma-separated)</label><input class="peng-input" name="badges" value="${F.escapeHtml((r.badges || []).join(', '))}"></div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem">
-            <div class="peng-field"><label class="peng-label">Calories</label><input class="peng-input" name="calories" value="${F.escapeHtml(String((r.nutrition && r.nutrition.calories) || ''))}"></div>
-            <div class="peng-field"><label class="peng-label">Protein</label><input class="peng-input" name="protein" value="${F.escapeHtml((r.nutrition && r.nutrition.protein) || '')}"></div>
-            <div class="peng-field"><label class="peng-label">Carbs</label><input class="peng-input" name="carbs" value="${F.escapeHtml((r.nutrition && r.nutrition.carbs) || '')}"></div>
-            <div class="peng-field"><label class="peng-label">Fat</label><input class="peng-input" name="fat" value="${F.escapeHtml((r.nutrition && r.nutrition.fat) || '')}"></div>
-          </div>
-          <label style="display:inline-flex;gap:0.4rem;align-items:center;margin-bottom:1rem"><input type="checkbox" name="featured" ${r.featured ? 'checked' : ''}> Featured on home</label>
-          <div class="peng-field">
-            <label class="peng-label">Ingredients (one per line: amount|unit|name)</label>
-            <textarea class="peng-textarea" name="ingredients" rows="6">${F.escapeHtml(
-              (r.ingredients || [])
-                .map((i) => `${i.amount}|${i.unit || ''}|${i.name}`)
-                .join('\n')
-            )}</textarea>
-          </div>
-          <div class="peng-field">
-            <label class="peng-label">Steps (one per line)</label>
-            <textarea class="peng-textarea" name="steps" rows="6">${F.escapeHtml((r.steps || []).join('\n'))}</textarea>
-          </div>
-          <button class="peng-btn peng-btn-primary" type="submit">Save recipe</button>
-        </form>
-      </div>
-    `;
-    document.getElementById('recipe-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const categoryIds = [...e.target.querySelectorAll('input[name="categoryIds"]:checked')].map((i) => i.value);
-      const ingredients = String(fd.get('ingredients') || '')
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line) => {
-          const [amount, unit, ...rest] = line.split('|');
-          return {
-            amount: isNaN(Number(amount)) ? amount : Number(amount),
-            unit: unit || '',
-            name: rest.join('|') || '',
-            scalable: true
-          };
-        });
-      const steps = String(fd.get('steps') || '')
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const saved = Store.upsertRecipe({
-        id: editingId || F.slugify(fd.get('title')),
+
+    function collectDraft(form) {
+      const fd = new FormData(form);
+      const categoryIds = [...form.querySelectorAll('input[name="categoryIds"]:checked')].map((i) => i.value);
+      const ingredients = [...form.querySelectorAll('[data-ing-row]')].map((row) => {
+        const amountRaw = row.querySelector('[data-ing-amount]').value.trim();
+        const amountNum = Number(amountRaw);
+        return {
+          amount: amountRaw === '' || Number.isNaN(amountNum) ? amountRaw : amountNum,
+          unit: row.querySelector('[data-ing-unit]').value.trim(),
+          name: row.querySelector('[data-ing-name]').value.trim(),
+          scalable: row.querySelector('[data-ing-scalable]').checked
+        };
+      }).filter((i) => i.name);
+      const steps = [...form.querySelectorAll('[data-step-card]')].map((card) => ({
+        text: card.querySelector('[data-step-text]').value.trim(),
+        tip: card.querySelector('[data-step-tip]').value.trim()
+      })).filter((s) => s.text);
+      return {
+        id: editingId || state.id || F.slugify(fd.get('title')),
         title: fd.get('title'),
         shortDescription: fd.get('shortDescription'),
+        intro: fd.get('intro'),
         categoryIds,
         price: Number(fd.get('price')) || 0,
         badges: String(fd.get('badges') || '')
@@ -346,17 +302,242 @@
         },
         image: fd.get('image'),
         servingsBase: Number(fd.get('servingsBase')) || 2,
+        prepTime: fd.get('prepTime'),
+        cookTime: fd.get('cookTime'),
         time: fd.get('time'),
         difficulty: fd.get('difficulty'),
         featured: !!fd.get('featured'),
+        equipment: String(fd.get('equipment') || '')
+          .split(',')
+          .map((e) => e.trim())
+          .filter(Boolean),
         ingredients,
         steps,
-        reviews: r.reviews || []
+        reviews: state.reviews || []
+      };
+    }
+
+    function paintPreview(form) {
+      const box = document.getElementById('editor-preview');
+      if (!box || !window.PENG_RECIPE_READER) return;
+      const draft = collectDraft(form);
+      box.innerHTML = window.PENG_RECIPE_READER.renderPreviewHtml(draft, draft.servingsBase);
+    }
+
+    function ingredientRowsHtml() {
+      return state.ingredients
+        .map(
+          (ing, idx) => `
+        <div class="peng-builder-row" data-ing-row>
+          <input class="peng-input" data-ing-amount placeholder="Amt" value="${F.escapeHtml(String(ing.amount ?? ''))}">
+          <input class="peng-input" data-ing-unit placeholder="Unit" value="${F.escapeHtml(ing.unit || '')}">
+          <input class="peng-input" data-ing-name placeholder="Ingredient name" value="${F.escapeHtml(ing.name || '')}">
+          <label style="font-size:0.75rem;display:inline-flex;gap:0.25rem;align-items:center;white-space:nowrap">
+            <input type="checkbox" data-ing-scalable ${ing.scalable !== false ? 'checked' : ''}> Scale
+          </label>
+          <button type="button" class="peng-btn peng-btn-ghost" style="padding:0.4rem 0.6rem" data-ing-remove="${idx}">✕</button>
+        </div>`
+        )
+        .join('');
+    }
+
+    function stepCardsHtml() {
+      return state.steps
+        .map(
+          (step, idx) => `
+        <div class="peng-step-card" data-step-card>
+          <div class="peng-step-card-head">
+            <strong>Step ${idx + 1}</strong>
+            <div style="display:flex;gap:0.35rem">
+              <button type="button" class="peng-btn peng-btn-ghost" style="padding:0.3rem 0.55rem" data-step-up="${idx}" ${idx === 0 ? 'disabled' : ''}>↑</button>
+              <button type="button" class="peng-btn peng-btn-ghost" style="padding:0.3rem 0.55rem" data-step-down="${idx}" ${idx === state.steps.length - 1 ? 'disabled' : ''}>↓</button>
+              <button type="button" class="peng-btn peng-btn-ghost" style="padding:0.3rem 0.55rem" data-step-remove="${idx}">Delete</button>
+            </div>
+          </div>
+          <textarea class="peng-textarea" data-step-text rows="5" placeholder="Write a detailed step with exact amounts, heat, timing, and doneness cues…">${F.escapeHtml(step.text || '')}</textarea>
+          <input class="peng-input" style="margin-top:0.5rem" data-step-tip placeholder="Optional tip (shown under the step)" value="${F.escapeHtml(step.tip || '')}">
+        </div>`
+        )
+        .join('');
+    }
+
+    function syncStateFromForm(form) {
+      const draft = collectDraft(form);
+      state.title = draft.title;
+      state.shortDescription = draft.shortDescription;
+      state.intro = draft.intro;
+      state.categoryIds = draft.categoryIds;
+      state.price = draft.price;
+      state.badges = draft.badges;
+      state.nutrition = draft.nutrition;
+      state.image = draft.image;
+      state.servingsBase = draft.servingsBase;
+      state.prepTime = draft.prepTime;
+      state.cookTime = draft.cookTime;
+      state.time = draft.time;
+      state.difficulty = draft.difficulty;
+      state.featured = draft.featured;
+      state.equipment = draft.equipment;
+      state.ingredients = draft.ingredients.length
+        ? draft.ingredients
+        : [{ amount: 1, unit: '', name: '', scalable: true }];
+      state.steps = draft.steps.length ? draft.steps : [{ text: '', tip: '' }];
+    }
+
+    function mount() {
+      content.innerHTML = `
+        <div class="peng-fade-in">
+          <h1 class="peng-section-title" style="font-size:1.8rem">${editingId ? 'Edit recipe' : 'New recipe'}</h1>
+          <p class="peng-section-sub">Write cookbook-level steps with exact amounts. Preview updates as you edit (this browser only).</p>
+          <div class="peng-editor-grid">
+            <form id="recipe-form" class="peng-card" style="padding:1.25rem">
+              <div class="peng-field"><label class="peng-label">Title</label><input class="peng-input" name="title" required value="${F.escapeHtml(state.title)}"></div>
+              <div class="peng-field"><label class="peng-label">Short description (cards / shop teaser)</label><textarea class="peng-textarea" name="shortDescription" rows="2" required>${F.escapeHtml(state.shortDescription)}</textarea></div>
+              <div class="peng-field"><label class="peng-label">Intro (cookbook story)</label><textarea class="peng-textarea" name="intro" rows="4" placeholder="1–3 short paragraphs readers see in the cook view">${F.escapeHtml(state.intro)}</textarea></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div class="peng-field"><label class="peng-label">Price (0 = free)</label><input class="peng-input" name="price" type="number" min="0" step="0.01" value="${state.price || 0}"></div>
+                <div class="peng-field"><label class="peng-label">Image path</label><input class="peng-input" name="image" value="${F.escapeHtml(state.image || '')}"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.75rem">
+                <div class="peng-field"><label class="peng-label">Prep</label><input class="peng-input" name="prepTime" value="${F.escapeHtml(state.prepTime || '')}" placeholder="10 min"></div>
+                <div class="peng-field"><label class="peng-label">Cook</label><input class="peng-input" name="cookTime" value="${F.escapeHtml(state.cookTime || '')}" placeholder="20 min"></div>
+                <div class="peng-field"><label class="peng-label">Total</label><input class="peng-input" name="time" value="${F.escapeHtml(state.time || '')}"></div>
+                <div class="peng-field"><label class="peng-label">Servings base</label><input class="peng-input" name="servingsBase" type="number" min="1" value="${state.servingsBase || 2}"></div>
+              </div>
+              <div class="peng-field"><label class="peng-label">Difficulty</label><input class="peng-input" name="difficulty" value="${F.escapeHtml(state.difficulty || '')}"></div>
+              <div class="peng-field">
+                <label class="peng-label">Categories</label>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+                  ${cats
+                    .map(
+                      (c) => `
+                    <label style="display:inline-flex;gap:0.3rem;align-items:center;font-size:0.85rem">
+                      <input type="checkbox" name="categoryIds" value="${F.escapeHtml(c.id)}" ${state.categoryIds.includes(c.id) ? 'checked' : ''}> ${F.escapeHtml(c.label)}
+                    </label>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+              <div class="peng-field"><label class="peng-label">Badges (comma-separated)</label><input class="peng-input" name="badges" value="${F.escapeHtml(state.badges.join(', '))}"></div>
+              <div class="peng-field"><label class="peng-label">Equipment (comma-separated)</label><input class="peng-input" name="equipment" value="${F.escapeHtml(state.equipment.join(', '))}" placeholder="Large skillet, Whisk, Mixing bowls"></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem">
+                <div class="peng-field"><label class="peng-label">Calories</label><input class="peng-input" name="calories" value="${F.escapeHtml(String(state.nutrition.calories || ''))}"></div>
+                <div class="peng-field"><label class="peng-label">Protein</label><input class="peng-input" name="protein" value="${F.escapeHtml(state.nutrition.protein || '')}"></div>
+                <div class="peng-field"><label class="peng-label">Carbs</label><input class="peng-input" name="carbs" value="${F.escapeHtml(state.nutrition.carbs || '')}"></div>
+                <div class="peng-field"><label class="peng-label">Fat</label><input class="peng-input" name="fat" value="${F.escapeHtml(state.nutrition.fat || '')}"></div>
+              </div>
+              <label style="display:inline-flex;gap:0.4rem;align-items:center;margin-bottom:1rem"><input type="checkbox" name="featured" ${state.featured ? 'checked' : ''}> Featured on home</label>
+
+              <div class="peng-field">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
+                  <label class="peng-label" style="margin:0">Ingredients</label>
+                  <button type="button" class="peng-btn peng-btn-ghost" id="add-ingredient">Add ingredient</button>
+                </div>
+                <div id="ingredient-rows">${ingredientRowsHtml()}</div>
+              </div>
+
+              <div class="peng-field">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
+                  <label class="peng-label" style="margin:0">Method steps</label>
+                  <button type="button" class="peng-btn peng-btn-ghost" id="add-step">Add step</button>
+                </div>
+                <div id="step-cards">${stepCardsHtml()}</div>
+              </div>
+
+              <button class="peng-btn peng-btn-primary" type="submit">Save recipe</button>
+            </form>
+
+            <aside class="peng-editor-preview">
+              <div class="peng-card" style="padding:1.15rem">
+                <h2 style="margin:0 0 0.75rem;font-size:1.1rem;color:var(--peng-primary)">Cookbook preview</h2>
+                <div id="editor-preview"></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      `;
+
+      const form = document.getElementById('recipe-form');
+
+      form.addEventListener('input', () => paintPreview(form));
+      form.addEventListener('change', () => paintPreview(form));
+
+      document.getElementById('add-ingredient').addEventListener('click', () => {
+        syncStateFromForm(form);
+        state.ingredients.push({ amount: 1, unit: '', name: '', scalable: true });
+        mount();
       });
-      editingId = saved.id;
-      UI.toast('Saved — live on storefront in this browser');
-      setSection('recipes');
-    });
+      document.getElementById('add-step').addEventListener('click', () => {
+        syncStateFromForm(form);
+        state.steps.push({ text: '', tip: '' });
+        mount();
+      });
+
+      form.querySelectorAll('[data-ing-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          syncStateFromForm(form);
+          const idx = Number(btn.getAttribute('data-ing-remove'));
+          state.ingredients.splice(idx, 1);
+          if (!state.ingredients.length) state.ingredients.push({ amount: 1, unit: '', name: '', scalable: true });
+          mount();
+        });
+      });
+
+      form.querySelectorAll('[data-step-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          syncStateFromForm(form);
+          const idx = Number(btn.getAttribute('data-step-remove'));
+          state.steps.splice(idx, 1);
+          if (!state.steps.length) state.steps.push({ text: '', tip: '' });
+          mount();
+        });
+      });
+
+      form.querySelectorAll('[data-step-up]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          syncStateFromForm(form);
+          const idx = Number(btn.getAttribute('data-step-up'));
+          if (idx <= 0) return;
+          const tmp = state.steps[idx - 1];
+          state.steps[idx - 1] = state.steps[idx];
+          state.steps[idx] = tmp;
+          mount();
+        });
+      });
+
+      form.querySelectorAll('[data-step-down]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          syncStateFromForm(form);
+          const idx = Number(btn.getAttribute('data-step-down'));
+          if (idx >= state.steps.length - 1) return;
+          const tmp = state.steps[idx + 1];
+          state.steps[idx + 1] = state.steps[idx];
+          state.steps[idx] = tmp;
+          mount();
+        });
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const draft = collectDraft(form);
+        if (!draft.steps.length) {
+          UI.toast('Add at least one method step');
+          return;
+        }
+        if (!draft.ingredients.length) {
+          UI.toast('Add at least one ingredient');
+          return;
+        }
+        const saved = Store.upsertRecipe(draft);
+        editingId = saved.id;
+        UI.toast('Saved — live on storefront & My recipes in this browser');
+        setSection('recipes');
+      });
+
+      paintPreview(form);
+    }
+
+    mount();
   }
 
   function renderBundles() {

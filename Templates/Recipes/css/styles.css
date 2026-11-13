@@ -896,6 +896,301 @@ button, input, select, textarea {
   border-radius: var(--peng-radius);
 }
 
+/* ----- Cook reader (cookbook layout) ----- */
+.peng-cook {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+@media (min-width: 768px) {
+  .peng-cook {
+    padding: 2rem 1.5rem 5rem;
+  }
+}
+
+.peng-cook-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--peng-muted);
+  margin-bottom: 1.25rem;
+}
+
+.peng-cook-back:hover {
+  color: var(--peng-accent);
+}
+
+.peng-cook-hero {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 900px) {
+  .peng-cook-hero {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2rem;
+    align-items: stretch;
+  }
+}
+
+.peng-cook-media {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--peng-sand);
+  background: var(--peng-sand);
+  aspect-ratio: 4 / 3;
+  box-shadow: var(--peng-shadow);
+}
+
+.peng-cook-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.peng-cook-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.peng-cook-title {
+  margin: 0;
+  font-family: var(--peng-font-heading);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.1;
+  color: var(--peng-primary);
+}
+
+.peng-cook-intro {
+  margin: 0;
+  color: var(--peng-text);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.peng-cook-timing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+}
+
+.peng-cook-timing div {
+  min-width: 4.5rem;
+}
+
+.peng-cook-timing .label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--peng-muted);
+}
+
+.peng-cook-timing .value {
+  font-family: var(--peng-font-heading);
+  font-size: 1.15rem;
+  color: var(--peng-primary);
+}
+
+.peng-cook-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: var(--peng-bg-alt);
+  border: 1px solid var(--peng-sand);
+  border-radius: 1rem;
+}
+
+.peng-cook-layout {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+  .peng-cook-layout {
+    grid-template-columns: 0.9fr 1.3fr;
+    align-items: start;
+  }
+
+  .peng-cook-side {
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+
+.peng-cook-panel {
+  background: #fff;
+  border: 1px solid var(--peng-sand);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.35rem;
+}
+
+.peng-cook-panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+  color: var(--peng-primary);
+}
+
+.peng-cook-ingredients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.peng-cook-ingredients li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--peng-sand);
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.peng-cook-ingredients li:last-child {
+  border-bottom: 0;
+}
+
+.peng-cook-ingredients strong {
+  color: var(--peng-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.peng-cook-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: cook-step;
+}
+
+.peng-cook-step {
+  counter-increment: cook-step;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.85rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--peng-sand);
+}
+
+.peng-cook-step:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.peng-cook-step::before {
+  content: counter(cook-step);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--peng-primary);
+  color: var(--peng-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--peng-font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.peng-cook-step-body {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--peng-text);
+}
+
+.peng-cook-tip {
+  margin-top: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--peng-accent) 10%, #fff);
+  border-left: 3px solid var(--peng-accent);
+  font-size: 0.9rem;
+  color: var(--peng-primary);
+  line-height: 1.55;
+}
+
+.peng-cook-tip strong {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+  color: var(--peng-accent);
+}
+
+.peng-equip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ----- Admin editor builder ----- */
+.peng-editor-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1100px) {
+  .peng-editor-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+
+  .peng-editor-preview {
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow: auto;
+  }
+}
+
+.peng-builder-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 4.5rem 4.5rem 1fr auto auto;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .peng-builder-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.peng-step-card {
+  border: 1px solid var(--peng-sand);
+  border-radius: 1rem;
+  padding: 0.9rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+}
+
+.peng-step-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.peng-chip-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 /* ----- Print ----- */
 @media print {
   .peng-header,
@@ -912,6 +1207,14 @@ button, input, select, textarea {
   body {
     background: #fff;
     color: #000;
+  }
+
+  .peng-cook-side {
+    position: static;
+  }
+
+  .peng-cook-layout {
+    grid-template-columns: 1fr;
   }
 
   .peng-print-mark::after {

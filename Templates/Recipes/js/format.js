@@ -107,6 +107,37 @@
     return prefix + route.replace(/^\//, '').replace(/\/?$/, '/');
   }
 
+  function normalizeStep(step) {
+    if (step == null) return { text: '', tip: '' };
+    if (typeof step === 'string') return { text: step, tip: '' };
+    return {
+      text: String(step.text || step.body || ''),
+      tip: String(step.tip || '')
+    };
+  }
+
+  function normalizeSteps(steps) {
+    return (steps || []).map(normalizeStep).filter((s) => s.text.trim());
+  }
+
+  function normalizeRecipe(recipe) {
+    if (!recipe) return null;
+    const r = Object.assign({}, recipe);
+    r.steps = normalizeSteps(r.steps);
+    r.equipment = Array.isArray(r.equipment) ? r.equipment.slice() : [];
+    r.intro = r.intro || '';
+    r.prepTime = r.prepTime || '';
+    r.cookTime = r.cookTime || '';
+    r.ingredients = (r.ingredients || []).map((ing) =>
+      Object.assign({ scalable: true }, ing)
+    );
+    return r;
+  }
+
+  function cookUrl(recipeId) {
+    return `${pageUrl('my-recipes/cook')}?id=${encodeURIComponent(recipeId)}`;
+  }
+
   global.PENG_FORMAT = {
     money,
     moneyExact,
@@ -118,6 +149,10 @@
     calcFees,
     escapeHtml,
     assetPath,
-    pageUrl
+    pageUrl,
+    normalizeStep,
+    normalizeSteps,
+    normalizeRecipe,
+    cookUrl
   };
 })(window);

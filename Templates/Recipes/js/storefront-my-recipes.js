@@ -41,11 +41,11 @@
   root.innerHTML = `
     <div class="peng-container peng-section peng-fade-in">
       <h1 class="peng-section-title">My recipes</h1>
-      <p class="peng-section-sub">Your private cookbook — unlocked recipes open in a full cook view with detailed steps. In a live PengSites shop, buyers also get these by email.</p>
+      <p class="peng-section-sub">Your private cookbook. Tap <strong>Open cookbook view</strong> on a recipe to read the full book-style page. Free recipes always appear here; paid ones show up after you buy them (Reset demo clears purchases).</p>
       ${
         list.length
           ? `<div class="peng-grid-recipes peng-stagger">${list.map(libraryCard).join('')}</div>`
-          : `<div class="peng-empty">No unlocked recipes yet. <a href="${F.pageUrl('recipes')}">Buy a recipe</a> or grab the free one from the home page signup.</div>`
+          : `<div class="peng-empty">No recipes in your cookbook yet. <a href="${F.pageUrl('recipes')}">Browse the shop</a> — the free Rainbow Grain Bowl should appear here automatically.</div>`
       }
     </div>
   `;

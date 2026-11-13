@@ -2,7 +2,6 @@
   const Store = window.PENG_STORE;
   const F = window.PENG_FORMAT;
   const UI = window.PENG_UI;
-  const Reader = window.PENG_RECIPE_READER;
 
   const ui = UI.initStorefront({ active: 'recipes', title: 'Recipe' });
   const params = new URLSearchParams(location.search);
@@ -125,51 +124,11 @@
     document.getElementById('buy-recipe-top')?.addEventListener('click', buy);
   }
 
-  function unlockedView() {
-    const wrap = document.createElement('div');
-    root.innerHTML = '';
-    root.appendChild(wrap);
-    Reader.render(wrap, recipe, {
-      mode: 'storefront',
-      backHref: F.pageUrl('recipes'),
-      backLabel: 'All recipes'
-    });
-
-    const extra = document.createElement('div');
-    extra.className = 'peng-container';
-    extra.style.paddingBottom = '3rem';
-    extra.innerHTML = `
-      ${(recipe.reviews || []).length
-        ? `<section style="margin-top:0.5rem">
-            <h2 class="peng-section-title" style="font-size:1.6rem">Reviews</h2>
-            <div style="display:grid;gap:0.85rem;margin-top:1rem">
-              ${recipe.reviews
-                .map(
-                  (rev) => `
-                <div class="peng-card" style="padding:1rem 1.15rem">
-                  <div class="peng-stars">${F.stars(rev.stars)}</div>
-                  <p style="margin:0.5rem 0">${F.escapeHtml(rev.text)}</p>
-                  <div style="font-size:0.8rem;color:var(--peng-muted)">${F.escapeHtml(rev.name)} · ${F.escapeHtml(F.formatDate(rev.date))}</div>
-                </div>`
-                )
-                .join('')}
-            </div>
-          </section>`
-        : ''}
-      <section style="margin-top:2.5rem">
-        <h2 class="peng-section-title" style="font-size:1.6rem">You might also like</h2>
-        <div class="peng-grid-recipes peng-stagger" id="related-grid" style="margin-top:1rem"></div>
-      </section>
-    `;
-    root.appendChild(extra);
-    const relatedEl = document.getElementById('related-grid');
-    const rel = related();
-    relatedEl.innerHTML = rel.length
-      ? rel.map(UI.recipeCard).join('')
-      : '<div class="peng-empty">More recipes coming soon.</div>';
-    UI.bindAddButtons(relatedEl);
+  // Owned / free recipes always open the cookbook page.
+  if (unlocked) {
+    location.replace(F.cookUrl(recipe.id));
+    return;
   }
 
-  if (unlocked) unlockedView();
-  else lockedTeaser();
+  lockedTeaser();
 })();

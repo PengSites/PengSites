@@ -232,18 +232,20 @@
 
   function recipeCard(recipe) {
     const unlocked = Store().isUnlocked(recipe.id);
-    const priceLabel =
-      !recipe.price || recipe.price <= 0
-        ? '<span class="peng-free-pill">Free</span>'
-        : `<span class="peng-price-pill">${F().escapeHtml(F().money(recipe.price))}</span>`;
-    const href = `${F().pageUrl('recipe')}?id=${encodeURIComponent(recipe.id)}`;
+    const isFree = !recipe.price || recipe.price <= 0;
+    const priceLabel = isFree
+      ? '<span class="peng-free-pill">Free</span>'
+      : `<span class="peng-price-pill">${F().escapeHtml(F().money(recipe.price))}</span>`;
+    const shopHref = `${F().pageUrl('recipe')}?id=${encodeURIComponent(recipe.id)}`;
+    const cookHref = F().cookUrl(recipe.id);
+    const readHref = unlocked ? cookHref : shopHref;
     const avg =
       recipe.reviews && recipe.reviews.length
         ? recipe.reviews.reduce((s, r) => s + r.stars, 0) / recipe.reviews.length
         : 0;
     return `
       <article class="peng-card">
-        <a href="${href}">
+        <a href="${readHref}">
           <div class="peng-card-media">
             <img src="${F().escapeHtml(F().assetPath(recipe.image))}" alt="${F().escapeHtml(recipe.title)}" loading="lazy">
             ${priceLabel}
@@ -252,21 +254,21 @@
         <div class="peng-card-body">
           <div class="peng-badge-row">
             ${(recipe.badges || []).slice(0, 3).map((b) => `<span class="peng-badge">${F().escapeHtml(b)}</span>`).join('')}
-            ${unlocked && recipe.price > 0 ? '<span class="peng-badge">Owned</span>' : ''}
+            ${unlocked && !isFree ? '<span class="peng-badge">Owned</span>' : ''}
           </div>
           <h3 style="margin:0;font-size:1.15rem;color:var(--peng-primary)">
-            <a href="${href}">${F().escapeHtml(recipe.title)}</a>
+            <a href="${readHref}">${F().escapeHtml(recipe.title)}</a>
           </h3>
           <p style="margin:0;font-size:0.875rem;color:var(--peng-muted);flex:1">${F().escapeHtml(recipe.shortDescription)}</p>
           ${avg ? `<div class="peng-stars" aria-label="${avg.toFixed(1)} stars">${F().stars(avg)}</div>` : ''}
           <div style="display:flex;gap:0.5rem;margin-top:auto">
-            <a class="peng-btn peng-btn-ghost" style="flex:1" href="${href}">View</a>
             ${
-              !recipe.price || recipe.price <= 0
-                ? `<a class="peng-btn peng-btn-secondary" style="flex:1" href="${href}">Get free</a>`
-                : unlocked
-                  ? `<a class="peng-btn peng-btn-secondary" style="flex:1" href="${href}">Open</a>`
-                  : `<button type="button" class="peng-btn peng-btn-primary" style="flex:1" data-add-recipe="${F().escapeHtml(recipe.id)}">Add</button>`
+              unlocked
+                ? `<a class="peng-btn peng-btn-secondary" style="flex:1" href="${cookHref}">Open cookbook</a>`
+                : isFree
+                  ? `<a class="peng-btn peng-btn-secondary" style="flex:1" href="${cookHref}">Open cookbook</a>`
+                  : `<a class="peng-btn peng-btn-ghost" style="flex:1" href="${shopHref}">View</a>
+                     <button type="button" class="peng-btn peng-btn-primary" style="flex:1" data-add-recipe="${F().escapeHtml(recipe.id)}">Add</button>`
             }
           </div>
         </div>
